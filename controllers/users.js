@@ -4,32 +4,39 @@ const jwt = require('jsonwebtoken');
 const { use } = require("../routes/users");
 
 const login = async (req, res, next) => {
-    const { email, password } = req.body
-    if (!email || !password) {
-        return res.status(400).json({ message: 'plese fill out the form' });
-    }
-    const user = await prisma.user.findFirst({ // проверка существуетли пользователь
-        where: {
-            email,
+    try {
+        const { email, password } = req.body
+        if (!email || !password) {
+            return res.status(400).json({ message: 'plese fill out the form' });
         }
-    });
-    //  если проверка  success
-    const isPasswordCorrect = user && (await bcrypt.compare(password, user.password));
-    const secret = process.env.JWT_SECRET;
-    if (user && isPasswordCorrect && secret) {
-        res.status(200).json({
-            id: user.id,
-            email: user.email,
-            name: user.name,
-            token: jwt.sign(
-                { id: user.id },
-                secret,
-                { expiresIn: '30d' },
-            )
-        })
-    } else {
+        const user = await prisma.user.findFirst({ // проверка существуетли пользователь
+            where: {
+                email,
+            }
+        });
+        //  если проверка  success
+        const isPasswordCorrect = user && (await bcrypt.compare(password, user.password));
+        const secret = process.env.JWT_SECRET;
+        if (user && isPasswordCorrect && secret) {
+            res.status(200).json({
+                id: user.id,
+                email: user.email,
+                name: user.name,
+                token: jwt.sign(
+                    { id: user.id },
+                    secret,
+                    { expiresIn: '30d' },
+                )
+            })
+        } else {
+            return res.status(400).json({
+                message: 'login or password entered incorrectly'
+            })
+        }
+
+    } catch (error) {
         return res.status(400).json({
-            message: 'login or password entered incorrectly'
+            message: 'login or password entered incorrectly', error
         })
     }
 }
