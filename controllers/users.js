@@ -73,7 +73,7 @@ const register = async (req, res, next) => {
     })
     // выдаём токен ключ
     const secret = process.env.JWT_SECRET;
-    // если удалось создаьб пользователя
+    // если удалось создать пользователя
     if (user && secret) {
         res.status(201).json({
             id: user.id,
@@ -92,9 +92,16 @@ const register = async (req, res, next) => {
         })
     }
 }
-
+/**
+ * 
+ * @route GET /api/user/current
+ * @description Текущий пользователь
+ * @access Private 
+ *  
+ *  
+ */
 const current = async (req, res, next) => {
-    res.send('current');
+    res.status(200).json(req.user)
 }
 module.exports = {
     login,
