@@ -1,19 +1,17 @@
 const express = require('express');
 const { auth } = require('../middleware/auth');
 const router = require('./users');
-const { all } = require('../controllers/employeesController');
+const { showAllEmployees, addEmployee } = require('../controllers/employeesController');
 
 //const router = express.Router();
 // api/employees/
-router.get('/', auth, all);
-
+router.get('/', auth, showAllEmployees);
+router.post('/add', addEmployee)
 router.get('/:id', auth, (req, res)=>{
     console.log('get single employees')
 })
 
-router.post('/add', auth, (req, res)=>{
-    console.log('add employee')
-})
+
 
 router.delete('/remove:id', auth, (req, res)=>{
     console.log('delete employee')
