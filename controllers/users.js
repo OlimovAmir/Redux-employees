@@ -54,51 +54,51 @@ const register = async (req, res, next) => {
     if (!email || !password || !name) {
         return res.status(400).json({
             message: 'fill out the form'
-        })
+        });
     }
 
-    const registeredUser = await prisma.user.findFirst({ // проверяем зарегистрирован ли пользователь
+    const registeredUser = await prisma.user.findFirst({
         where: {
             email,
         }
-    })
+    });
 
     if (registeredUser) {
         return res.status(400).json({
             message: 'The user exists'
-        })
+        });
     }
-    // Создаем пользаватель
-    const salt = await bcrypt.genSalt(10); // создаем хеш из 10 символов
-    const hashedPassword = await bcrypt.hash(password, salt); // строка добавляется к хеш для безопасности
-    const user = await prisma.user.create({
+
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    const createdUser = await prisma.user.create({
         data: {
             email,
-            name,
             password: hashedPassword,
+            name,
         }
-    })
-    // выдаём токен ключ
-    const secret = process.env.JWT_SECRET;
-    // если удалось создать пользователя
-    if (user && secret) {
-        res.status(201).json({
-            id: user.id,
-            email: user.email,
-            name: user.name,
-            token: jwt.sign(  // подпишем пользователя и выдадим ему токен
-                { id: user.id },
-                secret, // подписываем с помощю секретного ключа
-                { expiresIn: '30d' }, // через сколько наш токен просрочется 
+    });
 
-            )
+    const secret = process.env.JWT_SECRET;
+
+    if (createdUser && secret) {
+        res.status(201).json({
+            id: createdUser.id,
+            email: createdUser.email,
+            name: createdUser.name,
+            token: jwt.sign(
+                { id: createdUser.id },
+                secret,
+                { expiresIn: '30d' },
+            ),
         });
     } else {
         return res.status(400).json({
-            message: 'Failed to create user'
-        })
+            message: 'Failed to create user',
+        });
     }
-}
+};
 /**
  * 
  * @route GET /api/user/current

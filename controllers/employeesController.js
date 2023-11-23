@@ -20,32 +20,39 @@ const showAllEmployees = async (req, res, next) => {
  * @description add employees
  * @access Private
  */
-const addEmployee = async (req, res, next) => {
+const addEmployee = async (req, res) => {
     try {
         const data = req.body;
+        console.log('Received data:', data);
         if (!data.firstname || !data.lastname || !data.age || !data.adress) {
             return res.status(400).json({
                 message: 'fill in the empty fields',
+                
             })
+            
         }
-        const employee = await prisma.user.update({
-            where: {   // найди данного сотрудника и запиши созданный сотрудник на его имя
-                id: req.user.id
-            },
-            data: { // запиши вот этими данными 
-                createdEmployee: {
-                    create: data
-                }
+         // Проверка, существует ли req.user и имеет ли свойство id
+         if (!req.user || !req.user.id) {
+            return res.status(400).json({
+                message: 'User not authenticated or missing user id',
+            });
+        }
+        // достать последнего пользователя 
+        const employee = await prisma.employee.create({
+            data: { 
+                ...data,
+                userId: req.user.id
             }
         });
-        return res.status(201).json({
-            employee
-        })
+        return res.status(201).json(employee)
 
     } catch (error) {
+        console.error('Error adding employee:', error);
         return res.status(400).json({
-            message: 'Сотрудник не обнавлён', error
+            message: `Сотрудник не  создан `, error
+        
         })
+        
     }
 }
 
