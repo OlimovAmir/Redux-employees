@@ -127,7 +127,7 @@ const getEmployee = async (req, res) => {
         res.status(204).json('Success get')
     } catch (error) {
         res.status(400).json({
-            message: 'the object has not been get'
+            message: 'the object has not been getEmployee'
         })
     }
 }
