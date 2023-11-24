@@ -14,6 +14,7 @@ const showAllEmployees = async (req, res, next) => {
         res.status(400).json('Неудалось получить данные', error);
     }
 }
+//==========================================================================
 
 /**
  * @route POST /api/employees
@@ -43,7 +44,7 @@ const addEmployee = async (req, res) => {
 
         // достать последнего пользователя 
         const employee = await prisma.employee.create({
-            data: { 
+            data: {
                 ...data,
                 userId: req.user.id
             }
@@ -59,7 +60,82 @@ const addEmployee = async (req, res) => {
     }
 };
 
+//=====================================================================
+
+/**
+ * @route POST /api/employees/remove/:id
+ * @description удаление сотрудника
+ * @access Private
+ */
+
+const removeEmployee = async (req, res) => {
+    const { id } = req.body;
+    try {
+        await prisma.employee.delete({
+            where:{
+                id
+            }
+        });
+        res.status(204).json('Success delete')
+    } catch (error) {
+        res.status(400).json({
+            message: 'the object has not been deleted'
+        })
+    }
+}
+
+//===============================================================================
+
+/**
+ * @route PUT /api/employees/edit/:id
+ * @description редактирование сотрудника
+ * @access Private
+ */
+const editEmployee = async (req, res) => {
+    const { data } = req.body;
+    const id = data.id;
+    try {
+        await prisma.employee.update({
+            where:{
+                id
+            },
+            data
+        });
+        res.status(204).json('Success edited')
+    } catch (error) {
+        res.status(400).json({
+            message: 'the object has not been edited'
+        })
+    }
+}
+
+//=======================================================================================
+
+/**
+ * @route GET /api/employees/:id
+ * @description Получение сотрудника по id
+ * @access Private
+ */
+const getEmployee = async (req, res) => {
+    const id = req.params;
+    try {
+        const employee = await prisma.employee.findUnique({
+            where:{
+                id
+            },
+        });
+        res.status(204).json('Success get')
+    } catch (error) {
+        res.status(400).json({
+            message: 'the object has not been get'
+        })
+    }
+}
+
 module.exports = {
     showAllEmployees,
     addEmployee,
+    removeEmployee,
+    editEmployee,
+    getEmployee,
 }
